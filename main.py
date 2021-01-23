@@ -40,18 +40,26 @@ async def dm_missing(message):
         current_time = now.strftime('%H:%M')
         current_date = now.strftime('%B %d, %Y')
 
+        # checking to see which meeting is happening now
         for meeting in meetings:
-            if meeting.getDate().day == now.day and meeting.getDate().month == now.month and meeting.getDate().year == now.year:
-                if (now.minute >= meeting.getTime().minute and now.minute <= meeting.getTime().minute + 5) and meeting.getTime().hour == now.hour :
-                    missing = meeting
-                    await message.channel.send(meeting.getName())
-        for person in missing.getParticipants():
-            await message.channel.send(person)
-            if person.voice is None or person.voice.channel != channel:
-                await person.send('why u no in meeting :( ')
+            print (meeting.getDateTime())
+            print (datetime.datetime.now())
+            print (meeting.getEndDateTime())
+            if datetime.datetime.now() >= meeting.getDateTime() and datetime.datetime.now() <= meeting.getEndDateTime():
+                missing = meeting
+                await message.channel.send(meeting.getName() + 'is taking place right now')
+                for person in missing.getParticipants():
+                    await message.channel.send(person)
+                    if person.voice is None or person.voice.channel != channel:
+                        await person.send('why u no in meeting :( ')
 
-            else:
-                await person.send('u in meeting :)')
+                    else:
+                        await person.send('u in meeting :)')
+                return
+                        
+        await message.channel.send ('you aint missing any meetings right now')
+        
+        
     
 async def parse_meeting_info(parameters):
     meeting_time = None
