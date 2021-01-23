@@ -59,6 +59,7 @@ class Meeting:
 
     def __repr__(self):
         participant_names = []
-        for name in self.participants:
-            participant_names.append(name.name)
-        return "The meeting {} will happen at {} on {}:\nDescription: {}\nParticipants: {}".format(self.name, self.time, self.date, self.desc, ", ".join(participant_names))
+        for participant in self.participants:
+            participant_names.append(participant.display_name)
+        string = "{name}\n{hour:0>2}:{minute:0>2} {day:0>2}/{month:0>2}/{year:0>2}\nParticipants: {participants}\nDescription: {desc}\nAuto-Remind: {autoremind}"
+        return string.format(name = self.name, hour = self.time.hour, minute = self.time.minute, day = self.date.day, month = self.date.month, year = self.date.year, participants = participant_names, desc = self.desc, autoremind = str(self.auto_remind))
