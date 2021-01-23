@@ -49,7 +49,9 @@ class Meeting:
         return self.auto_remind
 
     def addParticipant(self, user):
-        self.participants.append(user)
+        #Only add if they haven't been already
+        if (not(user in self.participants)):
+            self.participants.append(user)
     
     def removeParticipant(self, user):
         self.participants.remove(user)
