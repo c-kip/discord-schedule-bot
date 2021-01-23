@@ -162,7 +162,7 @@ async def my_meetings(message):
     user = await client.fetch_user(message.author.id)
     await DMChannel.send(user, "Upcoming Meetings:")
     for meeting in user_meetings:
-      await DMChannel.send(user, meeting)
+      await DMChannel.send(user, embed=meeting.getEmbed())
         
 async def process_command(message):
     parameters = message.content.split(' ')
