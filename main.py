@@ -17,6 +17,14 @@ async def show_meetings(message):
     for meeting in meetings:
         await message.channel.send(meeting.getName())
 
+async def delete_meeting(message):
+    for meeting in meetings:
+      print(meeting.getName(),"a")
+      print(message,"b")
+      if (meeting.getName() == message[0]):
+        meetings.remove(meeting)
+          
+
 async def process_command(message):
     parameters = message.content.split(' ')
 
@@ -30,6 +38,8 @@ async def process_command(message):
             await make_meeting(parameters[1:])
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
+        elif (parameters[0] == 'delete_meeting'):
+            await delete_meeting(parameters[1:])
 
 @client.event
 async def on_ready():
