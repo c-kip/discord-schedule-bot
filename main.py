@@ -55,7 +55,7 @@ async def parse_meeting_info(parameters):
 
         #Date parameter DD/MM/YYYY (if year is omitted, assumed the current)
         if (len(param) == 5 and param[2] == '/'):
-            meeting_date = datetime.date(meeting_date.year, int(param[3:]), int(param[:2]))
+            meeting_date = datetime.date(datetime.datetime.now().year, int(param[3:]), int(param[:2]))
         elif (len(param) == 10 and param[2] == '/' and param[5] == '/'):
             meeting_date = datetime.date(int(param[6:]), int(param[3:5]), int(param[:2]))
 
@@ -142,7 +142,7 @@ async def update_meeting(message, parameters):
 
 async def show_meetings(message):
     for meeting in meetings:
-        await message.channel.send(meeting)
+        await message.channel.send(embed=meeting.getEmbed())
 
 async def delete_meeting(message):
     for meeting in meetings:

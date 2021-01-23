@@ -4,6 +4,7 @@ pretty basic and lacking in details (especially
 in how participants will be stored).
 """
 import datetime
+import discord
 
 class Meeting:
     def __init__(self, name, time = datetime.time(0,0,0), date = datetime.date(2000, 1, 1), participants = [], desc = "", auto_remind = False):
@@ -60,6 +61,23 @@ class Meeting:
     
     def getParticipants(self):
         return self.participants
+    
+    def getParticipantsStr(self):
+        participant_names = ""
+        for participant in self.participants:
+            participant_names += participant.display_name + ", "
+        return participant_names[:-2] #Remove the last comma (and space)
+
+    def getEmbed(self):
+        embedMeeting = discord.Embed(title=self.name, color=0x00ff00) 
+        #Don't repeat the title
+        desc = self.__repr__()
+        for i in range(len(desc)):
+            if (desc[i] == '\n'):
+                desc = desc[i+1:]
+                break
+        embedMeeting.description = desc
+        return embedMeeting
 
     def __eq__(self, other):
         return self.name == other.name
@@ -75,8 +93,5 @@ class Meeting:
         return self.date > other.date
 
     def __repr__(self):
-        participant_names = []
-        for participant in self.participants:
-            participant_names.append(participant.display_name)
         string = "{name}\n{hour:0>2}:{minute:0>2} {day:0>2}/{month:0>2}/{year:0>2}\nParticipants: {participants}\nDescription: {desc}\nAuto-Remind: {autoremind}"
-        return string.format(name = self.name, hour = self.time.hour, minute = self.time.minute, day = self.date.day, month = self.date.month, year = self.date.year, participants = participant_names, desc = self.desc, autoremind = str(self.auto_remind))
+        return string.format(name = self.name, hour = self.time.hour, minute = self.time.minute, day = self.date.day, month = self.date.month, year = self.date.year, participants = self.getParticipantsStr(), desc = self.desc, autoremind = "Yes" if self.auto_remind else "No")
