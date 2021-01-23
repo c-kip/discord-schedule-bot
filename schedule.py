@@ -6,13 +6,13 @@ in how participants will be stored).
 import datetime
 
 class Meeting:
-    def __init__(self, name, time = datetime.time(0,0,0), date = datetime.date(2000, 1, 1), participants = [], desc = "", autoRemind = False):
+    def __init__(self, name, time = datetime.time(0,0,0), date = datetime.date(2000, 1, 1), participants = [], desc = "", auto_remind = False):
         self.name = name
         self.time = time
         self.date = date
         self.participants = participants
         self.desc = desc
-        self.autoRemind = autoRemind
+        self.auto_remind = auto_remind
     
     def getName(self):
         return self.name
@@ -35,11 +35,11 @@ class Meeting:
     def getDesc(self):
         return self.desc
 
-    def setAutoRemind(self, autoRemind):
-        self.autoRemind = autoRemind
+    def setAutoRemind(self, auto_remind):
+        self.auto_remind = auto_remind
 
     def getAutoRemind(self):
-        return self.autoRemind
+        return self.auto_remind
 
     def addParticipant(self, user):
         self.participants.append(user)
