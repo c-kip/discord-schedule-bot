@@ -149,6 +149,19 @@ async def delete_meeting(message):
       if (meeting.getName() == message[0]):
         meetings.remove(meeting)
 
+async def my_meetings(message):
+    user_meetings = []
+    
+    for meeting in meetings:
+      participants = meeting.getParticipants()
+      if message.author in participants:
+        user_meetings.append(meeting)
+
+    user = await client.fetch_user(message.author.id)
+    await DMChannel.send(user, "Upcoming Meetings:")
+    for meeting in user_meetings:
+      await DMChannel.send(user, meeting)
+        
 async def process_command(message):
     parameters = message.content.split(' ')
 
@@ -175,6 +188,8 @@ async def process_command(message):
             # await message.channel.send(message.author)
         elif (parameters[0] == 'delete_meeting'):
             await delete_meeting(parameters[1:])
+        elif (parameters[0] == 'my_meetings'):
+            await my_meetings(message)
 
 @client.event
 async def on_reaction_add(reaction, user):
