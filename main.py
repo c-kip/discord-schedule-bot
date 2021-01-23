@@ -94,15 +94,7 @@ async def make_meeting(parameters):
 
 async def show_meetings(message):
     for meeting in meetings:
-        participant_names = ""
-        for participant in meeting.getParticipants():
-            participant_names += participant.display_name + ", "
-        await message.channel.send(meeting.getName() + "\n" + 
-              str(meeting.getTime().hour).zfill(2) + ":" + str(meeting.getTime().minute).zfill(2) + " " + str(meeting.getDate().day).zfill(2) + 
-              "/" + str(meeting.getDate().month).zfill(2) + "/" + str(meeting.getDate().year).zfill(2) + "\n" +
-              "Participants: " + participant_names + "\n" + 
-              "Desc: " + meeting.getDesc() + "\n" +
-              "Auto-Remind: " + str(meeting.getAutoRemind()))
+        await message.channel.send(meeting)
 
 async def delete_meeting(message):
     for meeting in meetings:
@@ -125,9 +117,6 @@ async def process_command(message):
             meetings[-1].setMessage(message)
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
-        elif (parameters[0] == 'check_meetings'):
-            for meeting in meetings:
-                await message.channel.send(meeting)
         elif (parameters[0] == 'missing'):
             await dm_missing(message)
             # await message.channel.send(message.author)
