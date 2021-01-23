@@ -27,7 +27,7 @@ async def dm_missing(message):
 
         for meeting in meetings:
             if meeting.getDate().day == now.day and meeting.getDate().month == now.month and meeting.getDate().year == now.year:
-                if meeting.getTime().minute == now.minute and meeting.getTime().hour == now.hour :
+                if (now.minute >= meeting.getTime().minute and now.minute <= meeting.getTime().minute + 5) and meeting.getTime().hour == now.hour :
                     missing = meeting
                     await message.channel.send(meeting.getName())
         for person in missing.getParticipants():
