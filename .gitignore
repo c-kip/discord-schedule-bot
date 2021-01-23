@@ -1,0 +1,5 @@
+# Ignore the environment file (has secrets we don't want revealed!)
+.env
+
+# Ignore vscode files
+/.vscode
