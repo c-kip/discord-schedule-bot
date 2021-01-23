@@ -13,18 +13,13 @@ meetings = []
 
 
 async def dm_missing(message):
-    author = message.author
-    await(message.channel.send(client.users))
-    
+    author = message.author    
     testing = client.users
     
-    await(message.channel.send(author))
-
     if (author.voice is None):
         await message.channel.send('Sorry, you are not currently in a voice channel.')
     else:
         channel = author.voice.channel
-
         
         for person in participants:
             await message.channel.send(person)
