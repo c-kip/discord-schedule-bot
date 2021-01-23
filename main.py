@@ -35,8 +35,6 @@ async def dm_missing(message):
                 await person.send('u in meeting :)')
     
     
-    
-
 async def make_meeting(parameters):
     #Assume only name
     name = parameters[0]
@@ -45,6 +43,11 @@ async def make_meeting(parameters):
 async def show_meetings(message):
     for meeting in meetings:
         await message.channel.send(meeting.getName())
+async def delete_meeting(message):
+    for meeting in meetings:
+      if (meeting.getName() == message[0]):
+        meetings.remove(meeting)
+          
 
 async def process_command(message):
     parameters = message.content.split(' ')
@@ -62,7 +65,8 @@ async def process_command(message):
         elif (parameters[0] == 'missing'):
             await dm_missing(message)
             # await message.channel.send(message.author)
-            
+        elif (parameters[0] == 'delete_meeting'):
+            await delete_meeting(parameters[1:])
 
 @client.event
 async def on_ready():
@@ -76,5 +80,5 @@ async def on_message(message):
     if message.content.startswith('$'):
         message.content = message.content[1:]
         await process_command(message)
-
+        
 client.run(os.getenv('TOKEN'))
