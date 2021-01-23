@@ -16,11 +16,8 @@ async def make_meeting(parameters):
 async def show_meetings(message):
     for meeting in meetings:
         await message.channel.send(meeting.getName())
-
 async def delete_meeting(message):
     for meeting in meetings:
-      print(meeting.getName(),"a")
-      print(message,"b")
       if (meeting.getName() == message[0]):
         meetings.remove(meeting)
           
