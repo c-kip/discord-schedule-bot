@@ -21,24 +21,22 @@ async def dm_missing(message):
         await message.channel.send('Sorry, you are not currently in a voice channel.')
     else:
         channel = author.voice.channel
-        now = datetime.now()
+        now = datetime.datetime.now()
         current_time = now.strftime('%H:%M')
         current_date = now.strftime('%B %d, %Y')
 
         for meeting in meetings:
-            if meeting.getDate == current_date:
-                if meeting.getTime == current_time:
-                    print ("todayy is meeting")
+            if meeting.getDate().day == now.day and meeting.getDate().month == now.month and meeting.getDate().year == now.year:
+                if meeting.getTime().minute == now.minute and meeting.getTime().hour == now.hour :
+                    missing = meeting
+                    await message.channel.send(meeting.getName())
+        for person in missing.getParticipants():
+            await message.channel.send(person)
+            if person.voice is None or person.voice.channel != channel:
+                await person.send('why u no in meeting :( ')
 
-        print('current time = ', current_time)
-        # for person in participants:
-        #     await message.channel.send(person)
-        #     if person.voice.channel != channel:
-        #         await person.send('why u no in meeting :( ')
-
-        #     else:
-        #         await person.send('u in meeting :)')
-    
+            else:
+                await person.send('u in meeting :)')
     
 async def make_meeting(parameters):
     #Name parameter
