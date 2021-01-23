@@ -27,9 +27,9 @@ class Meeting:
     def getTime(self):
         return self.time
     
-    def setDuration(self, time):
-        if (time > datetime.timedelta(0,0,0)):
-            self.time = time
+    def setDuration(self, duration):
+        if (duration > datetime.timedelta(0,0,0)):
+            self.duration = duration
 
     def getDuration(self):
         return self.duration

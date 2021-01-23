@@ -149,11 +149,13 @@ async def update_meeting(message, parameters):
         await message.channel.send("No meeting of name '{}' found.".format(parameters[0]))
         return False
 
-    meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
+    meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
 
     #Set any changed values
     if (meeting_time != None):
         meetings[found].setTime(meeting_time)
+    if (meeting_duration != None):
+        meetings[found].setDuration(meeting_duration)
     if (meeting_date != None):
         meetings[found].setDate(meeting_date)
     if (participants != []): #Not NONE
