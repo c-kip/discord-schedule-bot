@@ -17,14 +17,26 @@ class Meeting:
     def setTime(self, time):
         self.time = time
     
+    def getTime(self):
+        return self.time
+    
     def setDate(self, date):
         self.date = date
     
+    def getDate(self):
+        return self.date
+
     def setDesc(self, desc):
         self.desc = desc
     
+    def getDesc(self):
+        return self.desc
+
     def setAutoRemind(self, autoRemind):
         self.autoRemind = autoRemind
+
+    def getAutoRemind(self):
+        return self.autoRemind
 
     def addParticipant(self, user):
         self.participants.append(user)
@@ -32,3 +44,5 @@ class Meeting:
     def removeParticipant(self, user):
         self.participants.remove(user)
     
+    def getParticipants(self):
+        return self.participants
