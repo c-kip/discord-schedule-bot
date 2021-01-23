@@ -1,4 +1,5 @@
 import discord
+from discord import DMChannel
 import os
 import schedule
 import datetime
