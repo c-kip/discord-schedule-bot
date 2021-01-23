@@ -92,15 +92,7 @@ async def make_meeting(parameters):
 
 async def show_meetings(message):
     for meeting in meetings:
-        participant_names = ""
-        for participant in meeting.getParticipants():
-            participant_names += participant.display_name + ", "
-        await message.channel.send(meeting.getName() + "\n" + 
-              str(meeting.getTime().hour).zfill(2) + ":" + str(meeting.getTime().minute).zfill(2) + " " + str(meeting.getDate().day).zfill(2) + 
-              "/" + str(meeting.getDate().month).zfill(2) + "/" + str(meeting.getDate().year).zfill(2) + "\n" +
-              "Participants: " + participant_names + "\n" + 
-              "Desc: " + meeting.getDesc() + "\n" +
-              "Auto-Remind: " + str(meeting.getAutoRemind()))
+        await message.channel.send(meeting)
 
 async def delete_meeting(message):
     for meeting in meetings:
@@ -118,6 +110,9 @@ async def process_command(message):
             await client.logout()
         elif (parameters[0] == 'meeting'):
             await make_meeting(parameters[1:])
+            message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
+            await message.add_reaction('\N{THUMBS UP SIGN}')
+            meetings[-1].setMessage(message)
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
         elif (parameters[0] == 'missing'):
@@ -125,6 +120,15 @@ async def process_command(message):
             # await message.channel.send(message.author)
         elif (parameters[0] == 'delete_meeting'):
             await delete_meeting(parameters[1:])
+
+@client.event
+async def on_reaction_add(reaction, user):
+    channel = reaction.message.channel
+    if(user != client.user and reaction.emoji == '\N{THUMBS UP SIGN}'):
+        for meeting in meetings:
+            if (reaction.message == meeting.getMessage()):
+                meeting.addParticipant(user)
+                await channel.send("{} has added successfully signed up for {}".format(user.name, meeting.name))
 
 @client.event
 async def on_ready():
