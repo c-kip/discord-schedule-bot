@@ -69,7 +69,7 @@ class Meeting:
             self.time < other.time
         return self.date < other.date
 
-    def __ge__(self, other:)
+    def __ge__(self, other):
         if(self.date == other.date):
             self.time > other.time
         return self.date > other.date
