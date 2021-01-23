@@ -98,6 +98,7 @@ async def make_meeting(parameters):
         return "No parameters given!"
 
     meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
+    meeting_duration = datetime.timedelta(hours=1)
 
     if (meeting_time == None):
         meeting_time = datetime.datetime.now().time() #Default time is now
@@ -106,7 +107,7 @@ async def make_meeting(parameters):
     if (auto_remind == None):
         auto_remind = False #Default is no auto_remind
 
-    meetings.append(schedule.Meeting(name, meeting_time, meeting_date, participants, desc, auto_remind))
+    meetings.append(schedule.Meeting(name, meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind))
     
     return None
 

@@ -7,10 +7,12 @@ import datetime
 import discord
 
 class Meeting:
-    def __init__(self, name, time = datetime.time(0,0,0), date = datetime.date(2000, 1, 1), participants = [], desc = "", auto_remind = False):
+    def __init__(self, name, time = datetime.time(0,0,0), duration = datetime.timedelta(hours=1), date = datetime.date(2000, 1, 1), participants = [], desc = "", auto_remind = False):
         self.name = name
         self.time = time
+        self.duration = duration
         self.date = date
+        self.datetime = datetime.datetime.combine(date, time)
         self.participants = participants
         self.desc = desc
         self.auto_remind = auto_remind
@@ -25,11 +27,24 @@ class Meeting:
     def getTime(self):
         return self.time
     
+    def setDuration(self, time):
+        if (time > datetime.timedelta(0,0,0)):
+            self.time = time
+
+    def getDuration(self):
+        return self.duration
+    
+    def getEndDateTime(self):
+        return self.datetime + self.duration
+
     def setDate(self, date):
         self.date = date
     
     def getDate(self):
         return self.date
+
+    def getDateTime(self):
+        return self.datetime
 
     def setDesc(self, desc):
         self.desc = desc
@@ -93,5 +108,7 @@ class Meeting:
         return self.date > other.date
 
     def __repr__(self):
-        string = "{name}\n{hour:0>2}:{minute:0>2} {day:0>2}/{month:0>2}/{year:0>2}\nParticipants: {participants}\nDescription: {desc}\nAuto-Remind: {autoremind}"
-        return string.format(name = self.name, hour = self.time.hour, minute = self.time.minute, day = self.date.day, month = self.date.month, year = self.date.year, participants = self.getParticipantsStr(), desc = self.desc, autoremind = "Yes" if self.auto_remind else "No")
+        string = "{name}\nStart: {hour:0>2}:{minute:0>2} {day:0>2}/{month:0>2}/{year:0>2}\nEnd: {end_hour:0>2}:{end_minute:0>2} {end_day:0>2}/{end_month:0>2}/{end_year:0>2}\nParticipants: {participants}\nDescription: {desc}\nAuto-Remind: {autoremind}"
+        return string.format(name = self.name, hour = self.time.hour, minute = self.time.minute, day = self.date.day, month = self.date.month, year = self.date.year,
+                             end_hour = self.getEndDateTime().hour, end_minute = self.getEndDateTime().minute, end_day = self.getEndDateTime().day, end_month = self.getEndDateTime().month,
+                             end_year = self.getEndDateTime().year, participants = self.getParticipantsStr(), desc = self.desc, autoremind = "Yes" if self.auto_remind else "No")
