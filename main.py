@@ -28,8 +28,23 @@ async def process_command(message):
             await client.logout()
         elif (parameters[0] == 'meeting'):
             await make_meeting(parameters[1:])
+            message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
+            await message.add_reaction('\N{THUMBS UP SIGN}')
+            meetings[-1].setMessage(message)
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
+        elif (parameters[0] == 'check_meetings'):
+            for meeting in meetings:
+                await message.channel.send(meeting)
+
+@client.event
+async def on_reaction_add(reaction, user):
+    channel = reaction.message.channel
+    if(user != client.user and reaction.emoji == '\N{THUMBS UP SIGN}'):
+        for meeting in meetings:
+            if (reaction.message == meeting.getMessage()):
+                meeting.addParticipant(user)
+                await channel.send("{} has added successfully signed up for {}".format(user.name, meeting.name))
 
 @client.event
 async def on_ready():
