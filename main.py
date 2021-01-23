@@ -42,6 +42,11 @@ async def show_meetings(message):
               str(meeting.getTime().hour).zfill(2) + ":" + str(meeting.getTime().minute).zfill(2) + " " + str(meeting.getDate().day).zfill(2) + 
               "/" + str(meeting.getDate().month).zfill(2) + "/" + str(meeting.getDate().year).zfill(2))
 
+async def delete_meeting(message):
+    for meeting in meetings:
+      if (meeting.getName() == message[0]):
+        meetings.remove(meeting)
+
 async def process_command(message):
     parameters = message.content.split(' ')
 
@@ -55,6 +60,8 @@ async def process_command(message):
             await make_meeting(parameters[1:])
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
+        elif (parameters[0] == 'delete_meeting'):
+            await delete_meeting(parameters[1:])
 
 @client.event
 async def on_ready():
