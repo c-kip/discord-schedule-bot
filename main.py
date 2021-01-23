@@ -12,7 +12,21 @@ load_dotenv(os.path.join(project_folder, '.env'))
 # client = discord.Client(intents=intents)
 client = discord.Client()
 meetings = []
+users = {}
 
+def addUser(user):
+    if (user.id not in users.keys()):
+        users[user.id] = []
+
+def addUserMeeting(user, meeting):
+    addUser(user)
+    if (meeting.getName() not in users[user.id]):
+        users[user.id].append(meeting.getName())
+
+def removeUserMeeting(user, meeting):
+    if (meeting.getName() in users[user]):
+        users[user].remove(meeting.getName())
+    print(str(users))
 
 async def dm_missing(message):
     author = message.author    
@@ -110,6 +124,9 @@ async def make_meeting(parameters):
 
     meetings.append(schedule.Meeting(name, meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind))
     
+    for user in participants:
+        addUserMeeting(user, meetings[-1])
+
     return None
 
 #Updates the parameters for the given meetings
@@ -150,6 +167,8 @@ async def delete_meeting(message):
     for meeting in meetings:
       if (meeting.getName() == message[0]):
         meetings.remove(meeting)
+        for user in users.keys():
+            removeUserMeeting(user, meeting)
 
 async def my_meetings(message):
     user_meetings = []
@@ -200,6 +219,7 @@ async def on_reaction_add(reaction, user):
         for meeting in meetings:
             if (reaction.message == meeting.getMessage()):
                 if (meeting.addParticipant(user)):
+                    addUserMeeting(user, meeting)
                     await channel.send("{} has successfully signed up for {}".format(user.name, meeting.name))
                 else:
                     await channel.send("{} has already signed up for {}".format(user.name, meeting.name))
