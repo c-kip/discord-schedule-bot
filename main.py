@@ -56,6 +56,8 @@ async def dm_missing(message):
 async def parse_meeting_info(parameters):
     meeting_time = None
     meeting_date = None
+    meeting_duration = None
+    start_recorded = False
     participants = []
     desc = ''
     auto_remind = None
@@ -66,7 +68,13 @@ async def parse_meeting_info(parameters):
 
         #Time parameter HH:MM (24HR)
         if (len(param) == 5 and param[2] == ':'):
-            meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+            #The first time found is assumed to be the start time
+            if (not(start_recorded)):
+                meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+                start_recorded = True
+            #The second time found is assumed to be the duration
+            else:
+                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=int(param[3:]))
 
         #Date parameter DD/MM/YYYY (if year is omitted, assumed the current)
         if (len(param) == 5 and param[2] == '/'):
@@ -99,7 +107,7 @@ async def parse_meeting_info(parameters):
         elif (param.lower() == 'false'):
             auto_remind = False
     
-    return meeting_time, meeting_date, participants, desc, auto_remind
+    return meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind
 
 async def make_meeting(parameters):
     #Name parameter
@@ -112,11 +120,12 @@ async def make_meeting(parameters):
     else:
         return "No parameters given!"
 
-    meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
-    meeting_duration = datetime.timedelta(hours=1)
+    meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
 
     if (meeting_time == None):
         meeting_time = datetime.datetime.now().time() #Default time is now
+    if (meeting_duration == None):
+        meeting_duration = datetime.timedelta(hours=1) #Default is one hour long
     if (meeting_date == None):
         meeting_date = datetime.date.today() #If the date is omitted, assume today
     if (auto_remind == None):
