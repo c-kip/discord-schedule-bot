@@ -39,12 +39,20 @@ async def dm_missing(message):
         #     else:
         #         await person.send('u in meeting :)')
     
-    
+
+#Creates a meeting object based on the given parameters (setting all non-given 
+#parameters to their default values). If an error occurs, the function will
+#return a string describing the error, otherwise it returns None.
 async def make_meeting(parameters):
     #Name parameter
     name = "Undefined"
     if (len(parameters) >= 1):
+        for meet in meetings:
+            if (meet.getName() == parameters[0]):
+                return "A meeting already uses that name!"
         name = parameters[0]
+    else:
+        return "No parameters given!"
 
     #Default values
     meeting_time = datetime.datetime.now().time() #Default time is now
@@ -91,6 +99,8 @@ async def make_meeting(parameters):
             auto_remind = True
 
     meetings.append(schedule.Meeting(name, meeting_time, meeting_date, participants, desc, auto_remind))
+    
+    return None
 
 async def show_meetings(message):
     for meeting in meetings:
@@ -111,9 +121,12 @@ async def process_command(message):
             await message.channel.send('Buy-bye!')
             await client.logout()
         elif (parameters[0] == 'meeting'):
-            await make_meeting(parameters[1:])
-            message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
-            await message.add_reaction('\N{THUMBS UP SIGN}')
+            error = await make_meeting(parameters[1:])
+            if (error != None):
+                await message.channel.send(error)
+            else:
+                message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
+                await message.add_reaction('\N{THUMBS UP SIGN}')
             meetings[-1].setMessage(message)
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
@@ -129,8 +142,10 @@ async def on_reaction_add(reaction, user):
     if(user != client.user and reaction.emoji == '\N{THUMBS UP SIGN}'):
         for meeting in meetings:
             if (reaction.message == meeting.getMessage()):
-                meeting.addParticipant(user)
-                await channel.send("{} has added successfully signed up for {}".format(user.name, meeting.name))
+                if (meeting.addParticipant(user)):
+                    await channel.send("{} has added successfully signed up for {}".format(user.name, meeting.name))
+                else:
+                    await channel.send("{} has already signed up for {}".format(user.name, meeting.name))
 
 @client.event
 async def on_ready():
