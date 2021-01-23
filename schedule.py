@@ -66,12 +66,12 @@ class Meeting:
 
     def __le__(self, other):
         if(self.date == other.date):
-            self.time < other.time
+            return self.time < other.time
         return self.date < other.date
 
     def __ge__(self, other):
         if(self.date == other.date):
-            self.time > other.time
+            return self.time > other.time
         return self.date > other.date
 
     def __repr__(self):
