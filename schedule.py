@@ -21,13 +21,13 @@ class Meeting:
         self.time = time
     
     def getTime(self):
-        return self.time
+        return self.time.strftime('%H:%M')
     
     def setDate(self, date):
         self.date = date
     
     def getDate(self):
-        return self.date
+        return self.date.strftime('%B %d, %Y')
 
     def setDesc(self, desc):
         self.desc = desc

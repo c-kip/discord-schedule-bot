@@ -1,6 +1,7 @@
 import discord
 import os
 import schedule
+from datetime import datetime
 from dotenv import load_dotenv
 project_folder = os.path.expanduser('./')  # adjust as appropriate
 load_dotenv(os.path.join(project_folder, '.env'))
@@ -20,14 +21,23 @@ async def dm_missing(message):
         await message.channel.send('Sorry, you are not currently in a voice channel.')
     else:
         channel = author.voice.channel
-        
-        for person in participants:
-            await message.channel.send(person)
-            if person.voice.channel != channel:
-                await person.send('why u no in meeting')
+        now = datetime.now()
+        current_time = now.strftime('%H:%M')
+        current_date = now.strftime('%B %d, %Y')
 
-            else:
-                await person.send('u in meeting :)')
+        for meeting in meetings:
+            if meeting.getDate == current_date:
+                if meeting.getTime == current_time:
+                    print ("todayy is meeting")
+
+        print('current time = ', current_time)
+        # for person in participants:
+        #     await message.channel.send(person)
+        #     if person.voice.channel != channel:
+        #         await person.send('why u no in meeting :( ')
+
+        #     else:
+        #         await person.send('u in meeting :)')
     
     
 async def make_meeting(parameters):
@@ -38,6 +48,7 @@ async def make_meeting(parameters):
 async def show_meetings(message):
     for meeting in meetings:
         await message.channel.send(meeting.getName())
+
 async def delete_meeting(message):
     for meeting in meetings:
       if (meeting.getName() == message[0]):
