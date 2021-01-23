@@ -61,6 +61,19 @@ class Meeting:
     def getParticipants(self):
         return self.participants
 
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __le__(self, other):
+        if(self.date == other.date):
+            self.time < other.time
+        return self.date < other.date
+
+    def __ge__(self, other:)
+        if(self.date == other.date):
+            self.time > other.time
+        return self.date > other.date
+
     def __repr__(self):
         participant_names = []
         for participant in self.participants:
