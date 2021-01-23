@@ -21,14 +21,14 @@ async def process_command(message):
     parameters = message.content.split(' ')
 
     if (len(parameters) > 0):
-        if (parameters[0] == '$hello'):
+        if (parameters[0] == 'hello'):
             await message.channel.send('Hello!')
-        elif (parameters[0] == '$stop'):
+        elif (parameters[0] == 'stop'):
             await message.channel.send('Buy-bye!')
             await client.logout()
-        elif (parameters[0] == '$meeting'):
+        elif (parameters[0] == 'meeting'):
             await make_meeting(parameters[1:])
-        elif (parameters[0] == '$show_meetings'):
+        elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
 
 @client.event
@@ -41,6 +41,7 @@ async def on_message(message):
         return
     
     if message.content.startswith('$'):
+        message.content = message.content[1:]
         await process_command(message)
         
 client.run(os.getenv('TOKEN'))
