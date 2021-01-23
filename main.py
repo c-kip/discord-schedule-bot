@@ -6,9 +6,31 @@ from dotenv import load_dotenv
 project_folder = os.path.expanduser('./')  # adjust as appropriate
 load_dotenv(os.path.join(project_folder, '.env'))
 
+# intents = discord.Intents.default()
+# intents.members = True
+# client = discord.Client(intents=intents)
 client = discord.Client()
 meetings = []
 
+
+async def dm_missing(message):
+    author = message.author    
+    testing = client.users
+    
+    if (author.voice is None):
+        await message.channel.send('Sorry, you are not currently in a voice channel.')
+    else:
+        channel = author.voice.channel
+        
+        for person in participants:
+            await message.channel.send(person)
+            if person.voice.channel != channel:
+                await person.send('why u no in meeting')
+
+            else:
+                await person.send('u in meeting :)')
+    
+    
 async def make_meeting(parameters):
     #Name parameter
     name = "Undefined"
@@ -91,6 +113,9 @@ async def process_command(message):
             await make_meeting(parameters[1:])
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
+        elif (parameters[0] == 'missing'):
+            await dm_missing(message)
+            # await message.channel.send(message.author)
         elif (parameters[0] == 'delete_meeting'):
             await delete_meeting(parameters[1:])
 
