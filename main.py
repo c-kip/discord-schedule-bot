@@ -6,6 +6,16 @@ project_folder = os.path.expanduser('./')  # adjust as appropriate
 load_dotenv(os.path.join(project_folder, '.env'))
 
 client = discord.Client()
+meetings = []
+
+async def make_meeting(parameters):
+    #Assume only name
+    name = parameters[0]
+    meetings.append(schedule.Meeting(name))
+
+async def show_meetings(message):
+    for meeting in meetings:
+        await message.channel.send(meeting.getName())
 
 async def process_command(message):
     parameters = message.content.split(' ')
@@ -16,6 +26,10 @@ async def process_command(message):
         elif (parameters[0] == '$stop'):
             await message.channel.send('Buy-bye!')
             await client.logout()
+        elif (parameters[0] == '$meeting'):
+            await make_meeting(parameters[1:])
+        elif (parameters[0] == '$show_meetings'):
+            await show_meetings(message)
 
 @client.event
 async def on_ready():
