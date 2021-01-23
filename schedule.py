@@ -6,14 +6,17 @@ in how participants will be stored).
 import datetime
 
 class Meeting:
-    def __init__(self, name):
+    def __init__(self, name, time = datetime.time(0,0,0), date = datetime.date(2000, 1, 1), participants = [], desc = "", autoRemind = False):
         self.name = name
-        self.participants = []
-        self.time = datetime.time(0,0,0)
-        self.date = datetime.date(2000, 1, 1)
-        self.desc = ""
-        self.autoRemind = False
+        self.time = time
+        self.date = date
+        self.participants = participants
+        self.desc = desc
+        self.autoRemind = autoRemind
     
+    def getName(self):
+        return self.name
+
     def setTime(self, time):
         self.time = time
     
