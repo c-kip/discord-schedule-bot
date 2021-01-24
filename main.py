@@ -78,14 +78,44 @@ async def parse_meeting_info(parameters):
     for param in parameters:
 
         #Time parameter HH:MM (24HR)
-        if (len(param) == 5 and param[2] == ':'):
+        if (len(param) >= 3 and param[2] == ':'):
             #The first time found is assumed to be the start time
             if (not(start_recorded)):
-                meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[3:])
+                except:
+                    minutes = 0
+                meeting_time = datetime.time(int(param[:2]), minutes)
                 start_recorded = True
             #The second time found is assumed to be the duration
             else:
-                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=int(param[3:]))
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[3:])
+                except:
+                    minutes = 0
+                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=minutes)
+
+        #Time parameter alternate format H:MM (24HR)
+        if (len(param) >= 2 and param[1] == ':'):
+            #The first time found is assumed to be the start time
+            if (not(start_recorded)):
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[2:])
+                except:
+                    minutes = 0
+                meeting_time = datetime.time(int(param[:1]), minutes)
+                start_recorded = True
+            #The second time found is assumed to be the duration
+            else:
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[2:])
+                except:
+                    minutes = 0
+                meeting_duration = datetime.timedelta(hours=int(param[:1]), minutes=minutes)
 
         #Date parameter DD/MM/YYYY (if year is omitted, assumed the current)
         if (len(param) == 5 and param[2] == '/'):
