@@ -389,6 +389,10 @@ async def on_guild_join (guild):
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
+    if client.user.name != "discorg":
+        await client.user.edit(username="discorg")
+    with open('icon.png', 'rb') as image:
+        await client.user.edit(avatar=image.read())
 
 @client.event
 async def on_message(message):
