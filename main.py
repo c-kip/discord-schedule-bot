@@ -76,7 +76,7 @@ async def dm_missing(message):
         
 async def helpCommands (message):
     embed_help = discord.Embed(title="Help Center:", color=0x685BC7) 
-    msg = """Welcome to ___ bot! \nHere are some of the commands you can use: 
+    msg = """Welcome to the Discorg bot! \nHere are some of the commands you can use: 
     \n ```$meeting - allows you to schedule a new meeting 
     \n you can mix and match these parameters but make sure you have the title!
     \n parameters: 
