@@ -40,22 +40,32 @@ async def dm_missing(message):
         current_time = now.strftime('%H:%M')
         current_date = now.strftime('%B %d, %Y')
 
+        # checking to see which meeting is happening now
         for meeting in meetings:
-            if meeting.getDate().day == now.day and meeting.getDate().month == now.month and meeting.getDate().year == now.year:
-                if (now.minute >= meeting.getTime().minute and now.minute <= meeting.getTime().minute + 5) and meeting.getTime().hour == now.hour :
-                    missing = meeting
-                    await message.channel.send(meeting.getName())
-        for person in missing.getParticipants():
-            await message.channel.send(person)
-            if person.voice is None or person.voice.channel != channel:
-                await person.send('why u no in meeting :( ')
+            print (meeting.getDateTime())
+            print (datetime.datetime.now())
+            print (meeting.getEndDateTime())
+            if datetime.datetime.now() >= meeting.getDateTime() and datetime.datetime.now() <= meeting.getEndDateTime():
+                missing = meeting
+                await message.channel.send(meeting.getName() + 'is taking place right now')
+                for person in missing.getParticipants():
+                    await message.channel.send(person)
+                    if person.voice is None or person.voice.channel != channel:
+                        await person.send('why u no in meeting :( ')
 
-            else:
-                await person.send('u in meeting :)')
+                    else:
+                        await person.send('u in meeting :)')
+                return
+                        
+        await message.channel.send ('you aint missing any meetings right now')
+        
+        
     
 async def parse_meeting_info(parameters):
     meeting_time = None
     meeting_date = None
+    meeting_duration = None
+    start_recorded = False
     participants = []
     desc = ''
     auto_remind = None
@@ -66,7 +76,13 @@ async def parse_meeting_info(parameters):
 
         #Time parameter HH:MM (24HR)
         if (len(param) == 5 and param[2] == ':'):
-            meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+            #The first time found is assumed to be the start time
+            if (not(start_recorded)):
+                meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+                start_recorded = True
+            #The second time found is assumed to be the duration
+            else:
+                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=int(param[3:]))
 
         #Date parameter DD/MM/YYYY (if year is omitted, assumed the current)
         if (len(param) == 5 and param[2] == '/'):
@@ -99,7 +115,7 @@ async def parse_meeting_info(parameters):
         elif (param.lower() == 'false'):
             auto_remind = False
     
-    return meeting_time, meeting_date, participants, desc, auto_remind
+    return meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind
 
 async def make_meeting(parameters):
     #Name parameter
@@ -112,11 +128,12 @@ async def make_meeting(parameters):
     else:
         return "No parameters given!"
 
-    meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
-    meeting_duration = datetime.timedelta(hours=1)
+    meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
 
     if (meeting_time == None):
         meeting_time = datetime.datetime.now().time() #Default time is now
+    if (meeting_duration == None):
+        meeting_duration = datetime.timedelta(hours=1) #Default is one hour long
     if (meeting_date == None):
         meeting_date = datetime.date.today() #If the date is omitted, assume today
     if (auto_remind == None):
@@ -140,11 +157,13 @@ async def update_meeting(message, parameters):
         await message.channel.send("No meeting of name '{}' found.".format(parameters[0]))
         return False
 
-    meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
+    meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
 
     #Set any changed values
     if (meeting_time != None):
         meetings[found].setTime(meeting_time)
+    if (meeting_duration != None):
+        meetings[found].setDuration(meeting_duration)
     if (meeting_date != None):
         meetings[found].setDate(meeting_date)
     if (participants != []): #Not NONE
