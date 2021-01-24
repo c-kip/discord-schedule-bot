@@ -58,11 +58,30 @@ async def dm_missing(message):
         await message.channel.send ('you aint missing any meetings right now')
         
 async def helpCommands (message):
-    msg = """Welcome to ___ bot! Here are some of the commands you can use: 
-        \n $meeting - allows you to schedule a new meeting
+    embed_help = discord.Embed(title="Help Center:", color=0x685BC7) 
+    msg = """Welcome to ___ bot! \nHere are some of the commands you can use: 
+    \n ```$meeting - allows you to schedule a new meeting 
+    \n you can mix and match these parameters but make sure you have the title!
+    \n parameters: 
+    \n title: **all meetings must have this** (e.g. $meeting party)
+    \n start time: 24h-time, defaults to current time (e.g. $meeting party 13:35)
+    \n duration: defaults to 1 hour (e.g. $meeting party 13:35 1:45)
+    \n date: defaults to current date (e.g. $meeting party 24/01/2021)
+    \n participants: @ any users you want to schedule for the meeting (e.g. $meeting party @joe)
+    \n description: put your meeting description in between ' ' (e.g. $meeting party 'susan's birthday!')
+    \n auto remind: use TRUE or FALSE to turn auto remind on or off, defaults to FALSE (e.g. $meeting party TRUE)```
+    ```$show_meetings - will show all currently scheduled meetings```
+    ```$edit - lets meeting organizers and administrators edit meeting details```
+    ```$missing - checks the sender's voice channel to see if all meeting attendees are present and sends a direct message to those who are missing```
+    ```$delete_meeting - deletes a meeting given its name```
+    ```$my_meetings - sends you a direct message of all of your scheduled meetings```
+    ```$add_admin - adds an administrator to the meeting given the meeting name and the @ of the new administrator (e.g. $add_admin party @bob)```
+    ```$remove_admin - adds an administrator to the meeting given the meeting name and the @ of the new administrator (e.g. $remove_admin party @bob)```
+    """
+    embed_help.description = msg
+    await message.channel.send (embed=embed_help)
 
-        """
-    await message.channel.send (msg)
+
     
 async def parse_meeting_info(parameters):
     meeting_time = None
