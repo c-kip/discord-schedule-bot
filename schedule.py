@@ -75,7 +75,7 @@ class Meeting:
         return False
     
     def removeAdmin(self, user):
-        if (not(user in self.admins and len(self.admins) == 1)):
+        if (user in self.admins and len(self.admins) > 1):
             self.admins.remove(user)
             return True
         return False
