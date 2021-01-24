@@ -294,7 +294,7 @@ async def process_command(message):
                 await message.channel.send(error)
             else:
                 meetings[-1].addAdmin(await client.guilds[0].fetch_member(message.author.id))
-                await show_meetings(message)
+                await message.channel.send(embed=meetings[-1].getEmbed())
                 message = await message.channel.send('React with \N{THUMBS UP SIGN} to enroll in the meeting {}'.format(parameters[1]))
                 await message.add_reaction('\N{THUMBS UP SIGN}')
                 meetings[-1].setMessage(message)
