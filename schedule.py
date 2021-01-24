@@ -24,6 +24,7 @@ class Meeting:
 
     def setTime(self, time):
         self.time = time
+        self.datetime = datetime.datetime.combine(self.date, self.time)
     
     def getTime(self):
         return self.time
@@ -40,6 +41,7 @@ class Meeting:
 
     def setDate(self, date):
         self.date = date
+        self.datetime = datetime.datetime.combine(self.date, self.time)
     
     def getDate(self):
         return self.date
