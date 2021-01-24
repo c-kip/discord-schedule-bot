@@ -7,9 +7,6 @@ from dotenv import load_dotenv
 project_folder = os.path.expanduser('./')  # adjust as appropriate
 load_dotenv(os.path.join(project_folder, '.env'))
 
-# intents = discord.Intents.default()
-# intents.members = True
-# client = discord.Client(intents=intents)
 client = discord.Client()
 meetings = []
 users = {}
@@ -70,6 +67,8 @@ async def helpCommands (message):
 async def parse_meeting_info(parameters):
     meeting_time = None
     meeting_date = None
+    meeting_duration = None
+    start_recorded = False
     participants = []
     desc = ''
     auto_remind = None
@@ -80,7 +79,13 @@ async def parse_meeting_info(parameters):
 
         #Time parameter HH:MM (24HR)
         if (len(param) == 5 and param[2] == ':'):
-            meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+            #The first time found is assumed to be the start time
+            if (not(start_recorded)):
+                meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+                start_recorded = True
+            #The second time found is assumed to be the duration
+            else:
+                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=int(param[3:]))
 
         #Date parameter DD/MM/YYYY (if year is omitted, assumed the current)
         if (len(param) == 5 and param[2] == '/'):
@@ -113,7 +118,7 @@ async def parse_meeting_info(parameters):
         elif (param.lower() == 'false'):
             auto_remind = False
     
-    return meeting_time, meeting_date, participants, desc, auto_remind
+    return meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind
 
 async def make_meeting(parameters):
     #Name parameter
@@ -126,11 +131,12 @@ async def make_meeting(parameters):
     else:
         return "No parameters given!"
 
-    meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
-    meeting_duration = datetime.timedelta(hours=1)
+    meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
 
     if (meeting_time == None):
         meeting_time = datetime.datetime.now().time() #Default time is now
+    if (meeting_duration == None):
+        meeting_duration = datetime.timedelta(hours=1) #Default is one hour long
     if (meeting_date == None):
         meeting_date = datetime.date.today() #If the date is omitted, assume today
     if (auto_remind == None):
@@ -154,11 +160,13 @@ async def update_meeting(message, parameters):
         await message.channel.send("No meeting of name '{}' found.".format(parameters[0]))
         return False
 
-    meeting_time, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
+    meeting_time, meeting_duration, meeting_date, participants, desc, auto_remind = await parse_meeting_info(parameters[1:])
 
     #Set any changed values
     if (meeting_time != None):
         meetings[found].setTime(meeting_time)
+    if (meeting_duration != None):
+        meetings[found].setDuration(meeting_duration)
     if (meeting_date != None):
         meetings[found].setDate(meeting_date)
     if (participants != []): #Not NONE
@@ -211,6 +219,7 @@ async def process_command(message):
             if (error != None):
                 await message.channel.send(error)
             else:
+                meetings[-1].addAdmin(await client.guilds[0].fetch_member(message.author.id))
                 message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
                 await message.add_reaction('\N{THUMBS UP SIGN}')
             meetings[-1].setMessage(message)
@@ -227,6 +236,14 @@ async def process_command(message):
             await my_meetings(message)
         elif (parameters[0] == 'help'):
             await helpCommands(message)
+        elif (parameters[0] == 'add_admin'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.addAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+        elif (parameters[0] == 'remove_admin'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
 
 @client.event
 async def on_reaction_add(reaction, user):

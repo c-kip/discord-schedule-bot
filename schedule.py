@@ -17,6 +17,7 @@ class Meeting:
         self.desc = desc
         self.auto_remind = auto_remind
         self.message = ""
+        self.admins = []
     
     def getName(self):
         return self.name
@@ -27,9 +28,9 @@ class Meeting:
     def getTime(self):
         return self.time
     
-    def setDuration(self, time):
-        if (time > datetime.timedelta(0,0,0)):
-            self.time = time
+    def setDuration(self, duration):
+        if (duration > datetime.timedelta(0,0,0)):
+            self.duration = duration
 
     def getDuration(self):
         return self.duration
@@ -64,6 +65,24 @@ class Meeting:
     def getAutoRemind(self):
         return self.auto_remind
 
+    def addAdmin(self, user):
+        if (not(user in self.admins)):
+            self.admins.append(user)
+        self.addParticipant(user)
+    
+    def removeAdmin(self, user):
+        if (not(user in self.admins and len(self.admins) == 1)):
+            self.admins.remove(user)
+
+    def getAdmin(self):
+        return self.admins
+
+    def getAdminsStr(self):
+        admin_names = ""
+        for admin in self.admins:
+            admin_names += admin.display_name + ", "
+        return admin_names[:-2]
+
     def addParticipant(self, user):
         #Only add if they haven't been already
         if (not(user in self.participants)):
@@ -76,7 +95,7 @@ class Meeting:
     
     def getParticipants(self):
         return self.participants
-    
+
     def getParticipantsStr(self):
         participant_names = ""
         for participant in self.participants:
@@ -108,7 +127,7 @@ class Meeting:
         return self.date > other.date
 
     def __repr__(self):
-        string = "{name}\nStart: {hour:0>2}:{minute:0>2} {day:0>2}/{month:0>2}/{year:0>2}\nEnd: {end_hour:0>2}:{end_minute:0>2} {end_day:0>2}/{end_month:0>2}/{end_year:0>2}\nParticipants: {participants}\nDescription: {desc}\nAuto-Remind: {autoremind}"
+        string = "{name}\nStart: {hour:0>2}:{minute:0>2} {day:0>2}/{month:0>2}/{year:0>2}\nEnd: {end_hour:0>2}:{end_minute:0>2} {end_day:0>2}/{end_month:0>2}/{end_year:0>2}\nAdmins: {admins}\nParticipants: {participants}\nDescription: {desc}\nAuto-Remind: {autoremind}"
         return string.format(name = self.name, hour = self.time.hour, minute = self.time.minute, day = self.date.day, month = self.date.month, year = self.date.year,
                              end_hour = self.getEndDateTime().hour, end_minute = self.getEndDateTime().minute, end_day = self.getEndDateTime().day, end_month = self.getEndDateTime().month,
-                             end_year = self.getEndDateTime().year, participants = self.getParticipantsStr(), desc = self.desc, autoremind = "Yes" if self.auto_remind else "No")
+                             end_year = self.getEndDateTime().year, admins = self.getAdminsStr(), participants = self.getParticipantsStr(), desc = self.desc, autoremind = "Yes" if self.auto_remind else "No")
