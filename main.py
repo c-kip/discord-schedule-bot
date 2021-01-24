@@ -3,9 +3,6 @@ from discord import DMChannel
 import os
 import schedule
 import datetime
-from dotenv import load_dotenv
-project_folder = os.path.expanduser('./')  # adjust as appropriate
-load_dotenv(os.path.join(project_folder, '.env'))
 
 # intents = discord.Intents.default()
 # intents.members = True
