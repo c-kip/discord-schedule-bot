@@ -211,6 +211,14 @@ async def process_command(message):
             await delete_meeting(parameters[1:])
         elif (parameters[0] == 'my_meetings'):
             await my_meetings(message)
+        elif (parameters[0] == 'add_admin'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.addAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+        elif (parameters[0] == 'remove_admin'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
 
 @client.event
 async def on_reaction_add(reaction, user):
