@@ -260,11 +260,11 @@ async def my_meetings(message):
     user_meetings = []
     user = await client.fetch_user(message.author.id)
 
-    if (len(meetings) == 0):
+    if (len(meetings) != 0):
         for meeting in meetings:
             participants = meeting.getParticipants()
-        if message.author in participants:
-            user_meetings.append(meeting)
+            if message.author in participants:
+                user_meetings.append(meeting)
 
         await DMChannel.send(user, "Upcoming Meetings:")
         for meeting in user_meetings:
