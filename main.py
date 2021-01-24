@@ -239,6 +239,10 @@ async def process_command(message):
             for meeting in meetings:
                 if (meeting.getName() == parameters[1]):
                     meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+        elif (parameters[0] == 'leave_meeting'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.removeParticipant(await client.guilds[0].fetch_member(message.author.id))
 
 @client.event
 async def on_reaction_add(reaction, user):
