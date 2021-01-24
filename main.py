@@ -312,9 +312,9 @@ async def process_command(message):
         elif (parameters[0] == 'delete_meeting'):
             flag = await delete_meeting(parameters[1], message.author)
             if flag:
-                await message.channel.send('The meeting "{}" has been successfully deleted by {}'.format(parameters[1], await cline.guilds[0].fetch_member(message.author.id)))
+                await message.channel.send('The meeting "{}" has been successfully deleted by {}'.format(parameters[1], await client.guilds[0].fetch_member(message.author.id)))
             else:
-                await message.channel.send('The meeting "{}" could not be deleted deleted by {}'.format(parameters[1], await cline.guilds[0].fetch_member(message.author.id)))
+                await message.channel.send('The meeting "{}" could not be deleted deleted by {}'.format(parameters[1], await client.guilds[0].fetch_member(message.author.id)))
         elif (parameters[0] == 'my_meetings'):
             await my_meetings(message)
         elif (parameters[0] == 'help'):
