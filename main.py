@@ -70,13 +70,13 @@ async def dm_missing(message):
                 await message.channel.send(meeting.getName() + ' is taking place right now')
                 for person in missing.getParticipants():
                     if person.voice is None or person.voice.channel != channel:
-                        await person.send(meeting.getName() + ' is taking place right now! Come to ' + channel + ' to join!')
+                        await person.send(meeting.getName() + ' is taking place right now! Come to ' + str(channel) + ' to join!')
                 await message.channel.send("{} pinged everyone missing for the meeting {}".format(await client.guilds[0].fetch_member(author.id), meeting.getName()))
                 return
         
 async def helpCommands (message):
     embed_help = discord.Embed(title="Help Center:", color=0x685BC7) 
-    msg = """Welcome to ___ bot! \nHere are some of the commands you can use: 
+    msg = """Welcome to the Discorg bot! \nHere are some of the commands you can use: 
     \n ```$meeting - allows you to schedule a new meeting 
     \n you can mix and match these parameters but make sure you have the title!
     \n parameters: 
