@@ -216,6 +216,7 @@ async def process_command(message):
             if (error != None):
                 await message.channel.send(error)
             else:
+                meetings[-1].addAdmin(await client.guilds[0].fetch_member(message.author.id))
                 message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
                 await message.add_reaction('\N{THUMBS UP SIGN}')
             meetings[-1].setMessage(message)
