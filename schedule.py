@@ -70,11 +70,15 @@ class Meeting:
     def addAdmin(self, user):
         if (not(user in self.admins)):
             self.admins.append(user)
-        self.addParticipant(user)
+            self.addParticipant(user)
+            return True
+        return False
     
     def removeAdmin(self, user):
         if (not(user in self.admins and len(self.admins) == 1)):
             self.admins.remove(user)
+            return True
+        return False
 
     def getAdmin(self):
         return self.admins
@@ -94,6 +98,7 @@ class Meeting:
     
     def removeParticipant(self, user):
         self.participants.remove(user)
+        return True
     
     def getParticipants(self):
         return self.participants
