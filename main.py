@@ -14,6 +14,7 @@ client = discord.Client()
 meetings = []
 users = {}
 
+
 def addUser(user):
     if (user.id not in users.keys()):
         users[user.id] = []
@@ -59,7 +60,12 @@ async def dm_missing(message):
                         
         await message.channel.send ('you aint missing any meetings right now')
         
-        
+async def helpCommands (message):
+    msg = """Welcome to ___ bot! Here are some of the commands you can use: 
+        \n $meeting - allows you to schedule a new meeting
+
+        """
+    await message.channel.send (msg)
     
 async def parse_meeting_info(parameters):
     meeting_time = None
@@ -196,7 +202,7 @@ async def process_command(message):
 
     if (len(parameters) > 0):
         if (parameters[0] == 'hello'):
-            await message.channel.send('Hello!')
+            await message.channel.send("Hello!")
         elif (parameters[0] == 'stop'):
             await message.channel.send('Buy-bye!')
             await client.logout()
@@ -219,6 +225,8 @@ async def process_command(message):
             await delete_meeting(parameters[1:])
         elif (parameters[0] == 'my_meetings'):
             await my_meetings(message)
+        elif (parameters[0] == 'help'):
+            await helpCommands(message)
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -231,6 +239,17 @@ async def on_reaction_add(reaction, user):
                     await channel.send("{} has successfully signed up for {}".format(user.name, meeting.name))
                 else:
                     await channel.send("{} has already signed up for {}".format(user.name, meeting.name))
+
+@client.event 
+async def on_guild_join (guild):
+    embed_greeting = discord.Embed(title="Hello!", color=0x685BC7) 
+    msg = "Hi, thanks for inviting me! \n- my prefix is `$` \n- you can see a list of commands by typing `$help`"
+    embed_greeting.description = msg
+    
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send (embed=embed_greeting)
+        break
 
 @client.event
 async def on_ready():
