@@ -44,18 +44,19 @@ async def dm_missing(message):
             print (datetime.datetime.now())
             print (meeting.getEndDateTime())
             if datetime.datetime.now() >= meeting.getDateTime() and datetime.datetime.now() <= meeting.getEndDateTime():
+                if not(admin_authentication(author, meeting)):
+                    await message.channel.send("{} could not ping everyone missing for the meeting {}".format(await client.guilds[0].fetch_member(author.id), meeting.getName()))
+                    return
                 missing = meeting
-                await message.channel.send(meeting.getName() + 'is taking place right now')
+                await message.channel.send(meeting.getName() + ' is taking place right now')
                 for person in missing.getParticipants():
-                    await message.channel.send(person)
                     if person.voice is None or person.voice.channel != channel:
                         await person.send('why u no in meeting :( ')
 
                     else:
                         await person.send('u in meeting :)')
+                await message.channel.send("{} pinged everyone missing for the meeting {}".format(await client.guilds[0].fetch_member(author.id), meeting.getName()))
                 return
-                        
-        await message.channel.send ('you aint missing any meetings right now')
         
 async def helpCommands (message):
     msg = """Welcome to ___ bot! Here are some of the commands you can use: 
@@ -151,6 +152,12 @@ async def make_meeting(parameters):
 
 #Updates the parameters for the given meetings
 async def update_meeting(message, parameters):
+
+    for meeting in meetings:
+        if (meeting.getName() == parameters[0]):
+            if not (admin_authentication(message.author, meeting)):
+                return False
+
     found = -1
     for i in range(len(meetings)):
         if (meetings[i].getName() == parameters[0]):
@@ -181,13 +188,19 @@ async def update_meeting(message, parameters):
     if (auto_remind != None):
         meetings[found].setAutoRemind(auto_remind)
 
+    return True
+
 async def show_meetings(message):
+    if (len(meetings) == 0):
+        await message.channel.send("No meetings scheduled")
     for meeting in meetings:
         await message.channel.send(embed=meeting.getEmbed())
 
-async def delete_meeting(message):
+async def delete_meeting(message, author):
     for meeting in meetings:
       if (meeting.getName() == message):
+        if not (admin_authentication(author, meeting)):
+            return False
         meetings.remove(meeting)
         for user in users.keys():
             removeUserMeeting(user, meeting)
@@ -210,6 +223,13 @@ async def my_meetings(message):
     else:
         await DMChannel.send(user, "No upcoming meetings")
         
+def admin_authentication(user, meeting):
+    flag = False
+    for admin in meeting.getAdmin():
+        if (user.id == admin.id):
+            flag = True
+    return flag
+
 async def process_command(message):
     parameters = message.content.split(' ')
 
@@ -232,16 +252,20 @@ async def process_command(message):
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
         elif (parameters[0] == 'edit'):
-            await update_meeting(message, parameters[1:])
+            flag = await update_meeting(message, parameters[1:])
+            if flag:
+                await message.channel.send('The meeting {} was successfully edited by {}'.format(parameters[1], await client.guilds[0].fetch_member(message.author.id)))
+            else:
+                await message.channel.send('The meeting {} could not be edited by {}'.format(parameters[1], await client.guilds[0].fetch_member(message.author.id)))
         elif (parameters[0] == 'missing'):
             await dm_missing(message)
             # await message.channel.send(message.author)
         elif (parameters[0] == 'delete_meeting'):
-            flag = await delete_meeting(parameters[1])
+            flag = await delete_meeting(parameters[1], message.author)
             if flag:
-                await message.channel.send('The meeting "{}" has been successfully deleted'.format(parameters[1]))
+                await message.channel.send('The meeting "{}" has been successfully deleted by {}'.format(parameters[1], await cline.guilds[0].fetch_member(message.author.id)))
             else:
-                await message.channel.send('The meeting "{}" could not be removed'.format(parameters[1]))
+                await message.channel.send('The meeting "{}" could not be deleted deleted by {}'.format(parameters[1], await cline.guilds[0].fetch_member(message.author.id)))
         elif (parameters[0] == 'my_meetings'):
             await my_meetings(message)
         elif (parameters[0] == 'help'):
@@ -249,21 +273,21 @@ async def process_command(message):
         elif (parameters[0] == 'add_admin'):
             flag = False
             for meeting in meetings:
-                if (meeting.getName() == parameters[1]):
+                if (meeting.getName() == parameters[1] and admin_authentication(message.author, meeting)):
                     flag = meeting.addAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
             if flag:
-                await message.channel.send('{} was successfully made an admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+                await message.channel.send('{} was successfully made an admin for the meeting {} by {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1], await client.guilds[0].fetch_member(message.author.id)))
             else:
-                await message.channel.send('{} could not be made an admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+                await message.channel.send('{} could not be made an admin for the meeting {} by {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1], await client.guilds[0].fetch_member(message.author.id)))
         elif (parameters[0] == 'remove_admin'):
             flag = False
             for meeting in meetings:
-                if (meeting.getName() == parameters[1]):
+                if (meeting.getName() == parameters[1] and admin_authentication(message.author, meeting)):
                     flag = meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
             if flag:
-                await message.channel.send('{} is no longer an admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+                await message.channel.send('{} was demoted from admin by {} for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), await client.guilds[0].fetch_member(message.author.id), parameters[1]))
             else:
-                await message.channel.send('{} could not be demoted from admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+                await message.channel.send('{} could not be demoted from admin by {} for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), await client.guilds[0].fetch_member(message.author.id), parameters[1]))
         elif (parameters[0] == 'leave_meeting'):
             flag = False
             for meeting in meetings:
