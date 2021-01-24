@@ -3,6 +3,7 @@ from discord import DMChannel
 import os
 import schedule
 import datetime
+import threading
 from dotenv import load_dotenv
 project_folder = os.path.expanduser('./')  # adjust as appropriate
 load_dotenv(os.path.join(project_folder, '.env'))
@@ -11,6 +12,24 @@ client = discord.Client()
 meetings = []
 users = {}
 
+# unfinished
+def checkTime():
+    # This function runs periodically every 60 seconds
+    threading.Timer(60, checkTime).start()
+
+    time_now = datetime.datetime.now().strftime("%H:%M")
+    date_now = datetime.datetime.today().strftime('%Y-%m-%d')
+    now = date_now + " " + time_now
+   
+    for meeting in meetings:
+      meeting_time = meeting.getDateTime().strftime("%Y-%m-%d %H:%M")
+
+      if(str(meeting_time) == str(now)):
+        print("Should trigger dm_missing")
+        '''
+        process_command("missing")
+        channel.send("$dm_missing")
+        '''
 
 def addUser(user):
     if (user.id not in users.keys()):
@@ -382,5 +401,6 @@ async def on_message(message):
     if message.content.startswith('$'):
         message.content = message.content[1:]
         await process_command(message)
-        
+
+#checkTime()   # unfinished  
 client.run(os.getenv('TOKEN'))
