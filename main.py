@@ -250,7 +250,7 @@ async def update_meeting(message, parameters):
                 try:
                     await message.channel.send("{} has already signed up for {}".format(person, meetings[found].getName()))
                 except:
-                    print("Error, likelyl no message given (meeting creation issue).")
+                    print("Error, likely no message given (meeting creation issue).")
     if (desc != ''):
         meetings[found].setDesc(desc)
     if (auto_remind != None):
