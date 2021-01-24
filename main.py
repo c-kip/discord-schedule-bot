@@ -97,14 +97,44 @@ async def parse_meeting_info(parameters):
     for param in parameters:
 
         #Time parameter HH:MM (24HR)
-        if (len(param) == 5 and param[2] == ':'):
+        if (len(param) >= 3 and param[2] == ':'):
             #The first time found is assumed to be the start time
             if (not(start_recorded)):
-                meeting_time = datetime.time(int(param[:2]), int(param[3:]))
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[3:])
+                except:
+                    minutes = 0
+                meeting_time = datetime.time(int(param[:2]), minutes)
                 start_recorded = True
             #The second time found is assumed to be the duration
             else:
-                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=int(param[3:]))
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[3:])
+                except:
+                    minutes = 0
+                meeting_duration = datetime.timedelta(hours=int(param[:2]), minutes=minutes)
+
+        #Time parameter alternate format H:MM (24HR)
+        if (len(param) >= 2 and param[1] == ':'):
+            #The first time found is assumed to be the start time
+            if (not(start_recorded)):
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[2:])
+                except:
+                    minutes = 0
+                meeting_time = datetime.time(int(param[:1]), minutes)
+                start_recorded = True
+            #The second time found is assumed to be the duration
+            else:
+                minutes = 0 #Default the minutes to 0 if not provided
+                try:
+                    minutes = int(param[2:])
+                except:
+                    minutes = 0
+                meeting_duration = datetime.timedelta(hours=int(param[:1]), minutes=minutes)
 
         #Date parameter DD/MM/YYYY (if year is omitted, assumed the current)
         if (len(param) == 5 and param[2] == '/'):
@@ -206,23 +236,28 @@ async def show_meetings(message):
 
 async def delete_meeting(message):
     for meeting in meetings:
-      if (meeting.getName() == message[0]):
+      if (meeting.getName() == message):
         meetings.remove(meeting)
         for user in users.keys():
             removeUserMeeting(user, meeting)
+        return True
+    return False
 
 async def my_meetings(message):
     user_meetings = []
-    
-    for meeting in meetings:
-      participants = meeting.getParticipants()
-      if message.author in participants:
-        user_meetings.append(meeting)
-
     user = await client.fetch_user(message.author.id)
-    await DMChannel.send(user, "Upcoming Meetings:")
-    for meeting in user_meetings:
-      await DMChannel.send(user, embed=meeting.getEmbed())
+
+    if (len(meetings) == 0):
+        for meeting in meetings:
+            participants = meeting.getParticipants()
+        if message.author in participants:
+            user_meetings.append(meeting)
+
+        await DMChannel.send(user, "Upcoming Meetings:")
+        for meeting in user_meetings:
+            await DMChannel.send(user, embed=meeting.getEmbed())
+    else:
+        await DMChannel.send(user, "No upcoming meetings")
         
 async def process_command(message):
     parameters = message.content.split(' ')
@@ -239,9 +274,10 @@ async def process_command(message):
                 await message.channel.send(error)
             else:
                 meetings[-1].addAdmin(await client.guilds[0].fetch_member(message.author.id))
-                message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
+                await show_meetings(message)
+                message = await message.channel.send('React with \N{THUMBS UP SIGN} to enroll in the meeting {}'.format(parameters[1]))
                 await message.add_reaction('\N{THUMBS UP SIGN}')
-            meetings[-1].setMessage(message)
+                meetings[-1].setMessage(message)
         elif (parameters[0] == 'show_meetings'):
             await show_meetings(message)
         elif (parameters[0] == 'edit'):
@@ -250,19 +286,42 @@ async def process_command(message):
             await dm_missing(message)
             # await message.channel.send(message.author)
         elif (parameters[0] == 'delete_meeting'):
-            await delete_meeting(parameters[1:])
+            flag = await delete_meeting(parameters[1])
+            if flag:
+                await message.channel.send('The meeting "{}" has been successfully deleted'.format(parameters[1]))
+            else:
+                await message.channel.send('The meeting "{}" could not be removed'.format(parameters[1]))
         elif (parameters[0] == 'my_meetings'):
             await my_meetings(message)
         elif (parameters[0] == 'help'):
             await helpCommands(message)
         elif (parameters[0] == 'add_admin'):
+            flag = False
             for meeting in meetings:
                 if (meeting.getName() == parameters[1]):
-                    meeting.addAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+                    flag = meeting.addAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+            if flag:
+                await message.channel.send('{} was successfully made an admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+            else:
+                await message.channel.send('{} could not be made an admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
         elif (parameters[0] == 'remove_admin'):
+            flag = False
             for meeting in meetings:
                 if (meeting.getName() == parameters[1]):
-                    meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+                    flag = meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+            if flag:
+                await message.channel.send('{} is no longer an admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+            else:
+                await message.channel.send('{} could not be demoted from admin for the meeting {}'.format(await client.guilds[0].fetch_member(int(parameters[2][3:-1])), parameters[1]))
+        elif (parameters[0] == 'leave_meeting'):
+            flag = False
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    flag = meeting.removeParticipant(await client.guilds[0].fetch_member(message.author.id))
+            if flag:
+                await message.channel.send('{} was successfully removed from the meeting {}'.format(await client.guilds[0].fetch_member(message.author.id), parameters[1]))
+            else:
+                await message.channel.send('{} could not be removed from the meeting {}'.format(await client.guilds[0].fetch_member(message.author.id), parameters[1]))
 
 @client.event
 async def on_reaction_add(reaction, user):
