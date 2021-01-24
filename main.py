@@ -7,12 +7,10 @@ from dotenv import load_dotenv
 project_folder = os.path.expanduser('./')  # adjust as appropriate
 load_dotenv(os.path.join(project_folder, '.env'))
 
-# intents = discord.Intents.default()
-# intents.members = True
-# client = discord.Client(intents=intents)
 client = discord.Client()
 meetings = []
 users = {}
+
 
 def addUser(user):
     if (user.id not in users.keys()):
@@ -59,7 +57,12 @@ async def dm_missing(message):
                         
         await message.channel.send ('you aint missing any meetings right now')
         
-        
+async def helpCommands (message):
+    msg = """Welcome to ___ bot! Here are some of the commands you can use: 
+        \n $meeting - allows you to schedule a new meeting
+
+        """
+    await message.channel.send (msg)
     
 async def parse_meeting_info(parameters):
     meeting_time = None
@@ -207,7 +210,7 @@ async def process_command(message):
 
     if (len(parameters) > 0):
         if (parameters[0] == 'hello'):
-            await message.channel.send('Hello!')
+            await message.channel.send("Hello!")
         elif (parameters[0] == 'stop'):
             await message.channel.send('Buy-bye!')
             await client.logout()
@@ -216,6 +219,7 @@ async def process_command(message):
             if (error != None):
                 await message.channel.send(error)
             else:
+                meetings[-1].addAdmin(await client.guilds[0].fetch_member(message.author.id))
                 message = await message.channel.send('React with \N{THUMBS UP SIGN} to enrol in {}'.format(parameters[1]))
                 await message.add_reaction('\N{THUMBS UP SIGN}')
             meetings[-1].setMessage(message)
@@ -230,6 +234,20 @@ async def process_command(message):
             await delete_meeting(parameters[1:])
         elif (parameters[0] == 'my_meetings'):
             await my_meetings(message)
+        elif (parameters[0] == 'help'):
+            await helpCommands(message)
+        elif (parameters[0] == 'add_admin'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.addAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+        elif (parameters[0] == 'remove_admin'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.removeAdmin(await client.guilds[0].fetch_member(int(parameters[2][3:-1])))
+        elif (parameters[0] == 'leave_meeting'):
+            for meeting in meetings:
+                if (meeting.getName() == parameters[1]):
+                    meeting.removeParticipant(await client.guilds[0].fetch_member(message.author.id))
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -242,6 +260,17 @@ async def on_reaction_add(reaction, user):
                     await channel.send("{} has successfully signed up for {}".format(user.name, meeting.name))
                 else:
                     await channel.send("{} has already signed up for {}".format(user.name, meeting.name))
+
+@client.event 
+async def on_guild_join (guild):
+    embed_greeting = discord.Embed(title="Hello!", color=0x685BC7) 
+    msg = "Hi, thanks for inviting me! \n- my prefix is `$` \n- you can see a list of commands by typing `$help`"
+    embed_greeting.description = msg
+    
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send (embed=embed_greeting)
+        break
 
 @client.event
 async def on_ready():
