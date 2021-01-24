@@ -70,10 +70,7 @@ async def dm_missing(message):
                 await message.channel.send(meeting.getName() + ' is taking place right now')
                 for person in missing.getParticipants():
                     if person.voice is None or person.voice.channel != channel:
-                        await person.send('why u no in meeting :( ')
-
-                    else:
-                        await person.send('u in meeting :)')
+                        await person.send(meeting.getName() + ' is taking place right now! Come to ' + channel + ' to join!')
                 await message.channel.send("{} pinged everyone missing for the meeting {}".format(await client.guilds[0].fetch_member(author.id), meeting.getName()))
                 return
         
