@@ -88,12 +88,12 @@ async def helpCommands (message):
     \n description: put your meeting description in between ' ' (e.g. $meeting party 'susan's birthday!')
     \n auto remind: use TRUE or FALSE to turn auto remind on or off, defaults to FALSE (e.g. $meeting party TRUE)```
     ```$show_meetings - will show all currently scheduled meetings```
-    ```$edit - lets meeting organizers and administrators edit meeting details```
-    ```$missing - checks the sender's voice channel to see if all meeting attendees are present and sends a direct message to those who are missing```
-    ```$delete_meeting - deletes a meeting given its name```
     ```$my_meetings - sends you a direct message of all of your scheduled meetings```
+    ```$edit - lets meeting organizer/administrator(s) edit meeting details```
+    ```$delete_meeting - allows the meeting organizer/adminstrator(s) to delete a meeting given its name```
     ```$add_admin - adds an administrator to the meeting given the meeting name and the @ of the new administrator (e.g. $add_admin party @bob)```
-    ```$remove_admin - adds an administrator to the meeting given the meeting name and the @ of the new administrator (e.g. $remove_admin party @bob)```
+    ```$remove_admin - removes an administrator to the meeting given the meeting name and the @ of the old administrator (e.g. $remove_admin party @bob)```
+    ```$missing - checks the sender's voice channel to see if all meeting attendees are present and sends a direct message to those who are missing```
     """
     embed_help.description = msg
     await message.channel.send (embed=embed_help)
