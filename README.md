@@ -16,7 +16,7 @@ Users can type the `$help` command to learn more about what commands disorg offe
 * `$delete_meeting` - allows the meeting organizer/adminstrator(s) to delete a meeting given its name
 * `$add_admin` - adds an administrator to the meeting given the meeting name and the @ of the new administrator
 * `$remove_admin` - removes an administrator to the meeting given the meeting name and the @ of the old administrator 
-..* `$missing` - checks the sender's voice channel to see if all meeting attendees are present and sends a direct message to those who are missing
+* `$missing` - checks the sender's voice channel to see if all meeting attendees are present and sends a direct message to those who are missing
 
 ## usage
 1. `git clone` this repository
